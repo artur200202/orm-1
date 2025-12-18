@@ -1,6 +1,7 @@
-#DONT FORGET TO IMPORT FUNCTIONS AFTER YOU MAKE THEM
 from bp_auth import login, register
 from bp_owner import view_profile , update_profile , delete_profile
+from bp_pets import view_pets , create_pet , update_pet , delete_pet
+from bp_appointments schedule_appointment, view_appointments,  reschedule_appointment, complete_appointment
 def welcome_menu():
     current_user = None
     while True:
@@ -54,17 +55,13 @@ def pets_menu(current_user):
 5.) Back""")
         choice = input("choose 1-5: ")
         if choice == '1':
-            #function that displays the current user's pets
-            pass
+           view_pets()
         elif choice == '2':
-            #function to create a new pet linked to the current user, add to db
-            pass
+            create_pet()
         elif choice == '3':
-            #function to update a particular pet 
-            pass
+            update_pet()
         elif choice == '4':
-            #function to delete a particuler pet
-            pass
+            delete_pet()
         elif choice == '5':
             return
         else:
@@ -81,18 +78,13 @@ def appointments_menu(current_user):
 """)
         choice = input("choose 1-5: ")
         if choice == '1':
-            #Function to create a new appointment between one of the user's pets
-            #and one of the vets
-            pass
+            schedule_appointment()
         elif choice == '2':
-            #View current user's appointments
-            pass
+            view_appointments()
         elif choice == '3':
-            #Reschedule appointment (change the date)
-            pass
+            reschedule_appointment()
         elif choice == '4':
-            #Complete appointment (change status to complete)
-            pass
+            complete_appontment()
         elif choice =='5':
             return
 
