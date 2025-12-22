@@ -79,14 +79,11 @@ class Appointments(Base):
 
 Base.metadata.create_all(engine)
 
- #vet1 = Vets(name="Dr. Dizzy", specialization="Anesthesiologist", email="dylank@clinic.com")
+# vet1 = Vets(name="Dr. Dizzy", specialization="Anesthesiologist", email="dylank@clinic.com")
 # vet2 = Vets(name="Dr. James Brown", specialization="Surgery", email="james.brown@clinic.com")
 # vet3 = Vets(name="Dr. Lisa Garcia", specialization="Dermatology", email="lisa.garcia@clinic.com")
 # vet4 = Vets(name="Dr. Emily Wilson", specialization="General", email="emily.wilson@clinic.com")
 
 # session.add_all([vet1,vet2,vet3,vet4])
-# session.commit()
-#owner1 = Owners(name= 'david', phone = '818-333-3333', email = 'abcd@gmail.com' , password = 'art12333')
-#owner2 = Owners(name= 'Jeff', phone= '818-111-1111', email= '' )
-#session.add_all([owner1])
 #session.commit()
+    

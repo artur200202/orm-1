@@ -1,92 +1,113 @@
-from models import Owners, Pets, Vets, session
+from models import Owners, Pets, Vets, session, Appointments
 from datetime import datetime
 
-DATE_FORMAT = "%Y-%m-%d"
+date_format = "%Y-%m-%d" #This will be used to format your date
 
-def schedule_appointment(user):
-    view_pets(user)
-    pet_id = int(input("Select pet ID: "))
-    pet = session.query(Pets).filter_by(id=pet_id, owner_id=user.id).first()
+
+today = datetime.strptime("2025-08-08", date_format)
+
+
+
+def schedule_appointment(current_user):
+    # Show pets
+    print("\nYour Pets:")
+    for pet in current_user.pets:
+        print(f"- {pet.name} ({pet.species})")
+
+    pet_name = input("Enter the pet's name for the appointment: ")
+    pet = session.query(Pets).filter_by(name=pet_name, owner_id=current_user.id).first()
+
     if not pet:
-        print("Invalid pet.")
+        print("Pet not found.")
         return
-    print("\n--- Available Vets ---")
+
+    # Show vets
     vets = session.query(Vets).all()
-    for v in vets:
-        print(f"{v.id}) {v.name} - {v.specialization}")
+    print("\nAvailable Vets:")
+    for vet in vets:
+        print(f"{vet.id}. {vet.name} ({vet.specialization})")
 
-    vet_id = int(input("Choose vet ID: "))
+    vet_id = input("Enter the vet ID to schedule with: ")
     vet = session.query(Vets).filter_by(id=vet_id).first()
-    if not vet:
-        print("Invalid vet.")
-        return
-    date_str = input("Appointment date (YYYY-MM-DD): ")
-    appt_date = datetime.strptime(date_str, DATE_FORMAT).date()
-    notes = input("Notes: ")
-    new_appt = Appointments(
 
+    if not vet:
+        print("Vet not found.")
+        return
+
+    # Get appointment details
+    date_str = input("Enter appointment date (YYYY-MM-DD): ")
+    try:
+        appointment_date = datetime.strptime(date_str, date_format).date()
+    except ValueError:
+        print("Invalid date format. Use YYYY-MM-DD.")
+        return
+
+    notes = input("Enter notes (optional): ")
+
+    # Create appointment
+    new_appointment = Appointments(
         pet_id=pet.id,
         veterinarian_id=vet.id,
-        appointment_date=appt_date,
+        appointment_date=appointment_date,
         notes=notes,
         status="Scheduled"
     )
-
-    session.add(new_appt)
+    session.add(new_appointment)
     session.commit()
-    print("Appointment scheduled!")
+    print(f"Appointment scheduled for {pet.name} with Dr. {vet.name} on {appointment_date}")
 
 
-def view_appointments(user):
-    print("\n--- Your Appointments ---")
-    found = False
-    for pet in user.pets:
+#view appts
+def view_appointments(current_user):
+    """View all appointments for the current user's pets."""
+    if not current_user.pets:
+        print("You don’t have any pets.")
+        return
+
+    print("Your Appointments:")
+    for pet in current_user.pets:
         for appt in pet.appointments:
-            found = True
-            print(f"""
+            vet = session.query(Vets).get(appt.veterinarian_id)
+            print(f"ID: {appt.id} | Pet: {pet.name} | Vet: {vet.name} | Date: {appt.appointment_date} | Status: {appt.status}")
+    print()
 
-    Appointment ID: {appt.id}
-    Pet: {pet.name}
-    Vet: {appt.vet.name}
-    Date: {appt.appointment_date}
-    Status: {appt.status}
-    Notes: {appt.notes}
-    """)
-    if not found:
-        print("No appointments.")
 
-def reschedule_appointment(user):
-    view_appointments(user)
-    appt_id = int(input("Enter appointment ID to reschedule: "))
-    appt = session.query(Appointments).join(Pets).filter(
-        Appointments.id == appt_id,
-        Pets.owner_id == user.id
-    ).first()
+def reschedule_appointment(current_user):
+    view_appointments(current_user)
+
+    appt_id = input("Enter the appointment ID to reschedule: ")
+    appt = session.query(Appointments).get(appt_id)
 
     if not appt:
-        print("Invalid appointment.")
+        print("Appointment not found.")
         return
-    new_date_str = input("New date (YYYY-MM-DD): ")
-    new_date = datetime.strptime(new_date_str, DATE_FORMAT).date()
+
+    new_date_str = input("Enter new appointment date (YYYY-MM-DD): ")
+    try:
+        new_date = datetime.strptime(new_date_str, date_format).date()
+    except ValueError:
+        print("Invalid date format. Use YYYY-MM-DD.")
+        return
+
     appt.appointment_date = new_date
     session.commit()
+    print(f"Appointment {appt.id} rescheduled to {new_date}")
 
-    print("Appointment rescheduled!")
+#Complete appointments
+#Show appointments with ids (Loop over current user pets, loop over each pets appointments e.g nested loop)
+#query the appointment by id
+#change appointment.status to 'complete"
+#print success message
+def complete_appointment(current_user):
+    view_appointments(current_user)
 
-def complete_appointment(user):
-    view_appointments(user)
-    appt_id = int(input("Enter appointment ID to complete: "))
-    appt = session.query(Appointments).join(Pets).filter(
-        Appointments.id == appt_id,
-        Pets.owner_id == user.id
-    ).first()
+    appt_id = input("Enter the appointment ID to mark as completed: ")
+    appt = session.query(Appointments).get(appt_id)
 
     if not appt:
-        print("Invalid appointment.")
+        print("Appointment not found.")
         return
-    
+
     appt.status = "Completed"
     session.commit()
-
-    print("Appointment marked as completed!")
-
+    print(f"Appointment {appt.id} marked as completed.")
